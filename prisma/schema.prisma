@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Pizza {
+  id String @id @default(uuid())
+
+  timePreparation Int   @map("time_preparation")
+  totalvalue      Float @map("total_value")
+
+  size        Size        @relation(fields: [sizeId], references: [id])
+  sizeId      String
+  flavor      Flavor      @relation(fields: [flavorId], references: [id])
+  flavorId    String
+  additionals Customize[] @relation("PizzaCustomizations")
+
+  orders Order[]
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("pizzas")
+}
+
+model Size {
+  id String @id @default(uuid())
+
+  name   String  @unique
+  price  Float
+  time   Int
+  pizzas Pizza[]
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("sizes")
+}
+
+model Flavor {
+  id String @id @default(uuid())
+
+  name      String  @unique
+  extraTime Int     @default(0) @map("extra_time")
+  pizzas    Pizza[]
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("flavors")
+}
+
+model Customize {
+  id String @id @default(uuid())
+
+  name       String @unique
+  extraPrice Float  @default(0) @map("extra_price")
+  extraTime  Int    @default(0) @map("extra_time")
+
+  pizzas Pizza[] @relation("PizzaCustomizations")
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("customizations")
+}
+
+model Order {
+  id String @id @default(uuid())
+
+  totalValue      Float @map("total_value")
+  timePreparation Int   @map("time_preparation")
+
+  pizzas Pizza[]
+
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("orders")
+}
